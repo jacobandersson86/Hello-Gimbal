@@ -1,5 +1,5 @@
 # Hello Gimbal Example
-[!Picture of a Gimbal](docs/picture0.jpg)
+![Picture of a Gimbal](docs/picture0.jpg)
 
 Reads a xy gimbal and prints out the input in "progress bars" using a 
 EPS32 PICO KIT. Can be used in visual studio. See repo 
