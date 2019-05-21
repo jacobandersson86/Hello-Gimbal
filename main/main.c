@@ -14,19 +14,29 @@
 #include "gimbal.h"
 #include "tcp.h"
 
+#define X_PIN_ADC ADC1_CHANNEL_4 //GPIO32 == channel 4
+#define Y_PIN_ADC ADC1_CHANNEL_5 //GPIO33 == channel 5
+
 void app_main()
 {
     printf("Hello Gimbal\n");
-    init_gimbal();
+
+    gimbal_struct data = {
+        .x = 0,
+        .y = 0,
+        .x_pin_adc = X_PIN_ADC,
+        .y_pin_adc = Y_PIN_ADC,
+        .printflag = false,
+        .handle = NULL
+    };
+
+    init_gimbal(&data);
     start_wifi();
     //connect_socket();
 
-    gimbal_struct data;
+
     while(1)
     {
-        sample_gimbal(&data);
-        //print_gimbal(&data);
-        send_gimbal(&data);
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }

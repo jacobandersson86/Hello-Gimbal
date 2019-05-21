@@ -1,12 +1,10 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "driver/adc.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 #include "gimbal.h"
 
-#define X_PIN GPIO_NUM_32
-#define Y_PIN GPIO_NUM_33
-
-#define X_PIN_ADC ADC1_CHANNEL_4 //GPIO32 == channel 4
-#define Y_PIN_ADC ADC1_CHANNEL_5 //GPIO33 == channel 5
 
 #define HIGHEST_X 3371.0
 #define LOWEST_X 503.0
@@ -18,33 +16,37 @@
 
 #define POS_P 2.0
 
+void vGimbalTask (void *pvParameters){
+    gimbal_struct *data = (gimbal_struct*) pvParameters;
+
+    for ( ;; ){
+        sample_gimbal(data);
+        if(data->printflag)
+            print_gimbal(data);
+        send_gimbal(data);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+}
 
 
-void init_gimbal(){
-    /*
-    // Configurate inputs
-    gpio_config_t conf;
-    conf.intr_type = GPIO_INTR_DISABLE;
-    conf.mode = GPIO_MODE_INPUT;
-    conf.pin_bit_mask = 1ULL << X_PIN;
-    conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    conf.pull_up_en = GPIO_PULLUP_DISABLE;
-
-    gpio_config(&conf);
-
-    conf.pin_bit_mask = 1ULL << Y_PIN;
-    gpio_config(&conf);
-    */
-
+void init_gimbal(gimbal_struct* data){
     //Configurate ADC
-    adc1_config_width(ADC_WIDTH_12Bit);
-    adc1_config_channel_atten(X_PIN_ADC, ADC_ATTEN_11db); //Full scale to 3.9V
-    adc1_config_channel_atten(Y_PIN_ADC, ADC_ATTEN_11db); //Full scale to 3.9V
+    ESP_ERROR_CHECK(adc1_config_width(ADC_WIDTH_12Bit));
+    ESP_ERROR_CHECK(adc1_config_channel_atten(data->x_pin_adc, ADC_ATTEN_11db)); //Full scale to 3.9V
+    ESP_ERROR_CHECK(adc1_config_channel_atten(data->y_pin_adc, ADC_ATTEN_11db)); //Full scale to 3.9V
+
+    //Start task
+    BaseType_t err = xTaskCreate ( vGimbalTask, "Gimbal Task", 4096, data, tskIDLE_PRIORITY + 1, &data->handle);
+    if (err != pdPASS){
+        ESP_LOGE(__func__,"Gimbal Task initiation error. ");
+    }
+    configASSERT(data->handle);
+
 }
 
 void sample_gimbal(gimbal_struct* data){
-    data->x = adc1_get_raw(X_PIN_ADC);
-    data->y = adc1_get_raw(Y_PIN_ADC);
+    data->x = adc1_get_raw(data->x_pin_adc);
+    data->y = adc1_get_raw(data->y_pin_adc);
 }
 
 void printBar (char* prefix,double percentage)

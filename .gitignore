@@ -1,3 +1,5 @@
 build
 *.old
 .vscode/ipch
+.vscode/ipch/*
+wifi_confidentials.h

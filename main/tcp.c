@@ -7,10 +7,11 @@
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 
+#include "wifi_confidentials.h" //defines USER_WIFI_SSID & USER_WIFI_PWD. Each user must create this file!
 
 #define PORT 5555
-#define DEFAULT_SSID "plejd"
-#define DEFAULT_PWD "Plejd247Plus"
+#define DEFAULT_SSID USER_WIFI_SSID
+#define DEFAULT_PWD USER_WIFI_PWD
 #define DEFAULT_SCAN_METHOD WIFI_FAST_SCAN
 #define DEFAULT_SORT_METHOD WIFI_CONNECT_AP_BY_SIGNAL
 #define DEFAULT_RSSI -127
