@@ -107,7 +107,7 @@ esp_err_t connect_socket(){
         printf("\nConnection to socket Failed \n"); 
         return ESP_FAIL; 
     } 
-	
+	ESP_LOGI(__func__, "Connection to socket success!");
 	is_connected = 1;
 	return ESP_OK;
 }
@@ -126,7 +126,7 @@ esp_err_t send_message(const char * msg, int length)
 	while (to_write > 0)
 	{
 		
-		sent = send(connect_socket, msg + (length - to_write), to_write, flags);
+		sent = send(socket_connection, msg + (length - to_write), to_write, flags);
 		if (sent > 0) {
 			to_write -= sent;
 		}
@@ -136,7 +136,7 @@ esp_err_t send_message(const char * msg, int length)
 			switch (errno) {
 			case EAGAIN: {
 					printf("Socket has failed\n");
-					close(connect_socket);
+					close(socket_connection);
 					is_connected = 0;
 					return ESP_FAIL;
 				}

@@ -4,6 +4,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "gimbal.h"
+#include "tcp.h"
 
 
 #define HIGHEST_X 3371.0
@@ -14,7 +15,7 @@
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60
 
-#define POS_P 2.0
+#define POS_P 0.5
 
 void vGimbalTask (void *pvParameters){
     gimbal_struct *data = (gimbal_struct*) pvParameters;
@@ -102,6 +103,9 @@ void send_gimbal(gimbal_struct* data){
         pos += diff;
         printf("\rPos: %7.2f\t Diff: %5.2f", pos, diff);
         fflush(stdout);
+        char buf[256];
+        int len = sprintf(buf, "set pos %f\n", pos);
+        send_message(buf, len);
     }
     else{
         send = 0;

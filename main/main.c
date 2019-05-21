@@ -32,7 +32,7 @@ void app_main()
 
     init_gimbal(&data);
     start_wifi();
-    //connect_socket();
+    connect_socket();
 
 
     while(1)
